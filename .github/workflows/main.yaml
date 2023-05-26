@@ -28,8 +28,8 @@ jobs:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
       run: |
         pip install -r requirements.txt
-        python manage.py makemigrations --settings=investment.settings
-        python manage.py migrate --settings=investment.settings
+        python manage.py makemigrations --settings=investment.migrate_settings
+        python manage.py migrate --settings=investment.migrate_settings
     
     - name: Deploy to App Engine
       id: deploy
