@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-import os
 import dj_database_url
 import environ
 
@@ -93,7 +92,7 @@ if DEBUG:
 else:
     DATABASES = {
         "default": dj_database_url.config(
-            default=env('DATABASE_URL'),
+            default="postgres://carz:nsbuSQSZ7yuMkEMg1lmK3xfAfgVpBU8G@dpg-chg9qtrhp8u065opgidg-a.frankfurt-postgres.render.com/carz",
         conn_max_age=600,
         conn_health_checks=True,
     )}
