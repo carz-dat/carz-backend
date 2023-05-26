@@ -17,6 +17,7 @@ import dj_database_url
 import environ
 from google.cloud import secretmanager
 from .utils import access_secret_version
+from storages.backends.gcloud import GoogleCloudStorage
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,27 +27,26 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure--u56kdo)te)h6mo^zamevis6k@a16t2k!b5r#ofaqntzon&ux&'
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-env = environ.Env(DEBUG=(bool, False))
+env = environ.Env()
 DEBUG = env("DEBUG")
 
 ALLOWED_HOSTS = ['*']
 
 # Sercret manager client and project id
-client = secretmanager.SecretManagerServiceClient()
-project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")
-
 if not DEBUG:
     try:
+        client = secretmanager.SecretManagerServiceClient()
+        project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")
         # Pull secrets from Secret Manager
         SECRET_KEY = access_secret_version('SECRET_KEY', client, project_id)
     except:
         raise Exception(
             "No local .env or GOOGLE_CLOUD_PROJECT detected. No secrets found.")
 else:
-    SECRET_KEY = env("SECRET_KEY", "dopiqdj0ioqw8901u7890wd-./q")
+    SECRET_KEY = 'test'
 # [END gaestd_py_django_secret_config]
 
 
@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'storages',
     ### custom apps ###
     'investment'
 ]
@@ -107,7 +108,7 @@ if DEBUG:
 else:
     DATABASES = {
         "default": dj_database_url.config(
-            default="postgres://carz:nsbuSQSZ7yuMkEMg1lmK3xfAfgVpBU8G@dpg-chg9qtrhp8u065opgidg-a.frankfurt-postgres.render.com/carz",
+            default=env('DATABASES_URL'),
         conn_max_age=600,
         conn_health_checks=True,
     )}
@@ -146,24 +147,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
-# Following settings only make sense on production and may break development environments.
-if DEBUG:  # Tell Django to copy statics to the `staticfiles` directory
-    # in your application directory on Render.
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-    # Turn on WhiteNoise storage backend that takes care of compressing static files
-    # and creating unique names for each version so they can safely be cached forever.
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-else:
-    # Static files (CSS, JavaScript, Images)
-    # [START staticurl]
-    # [START gaeflex_py_django_static_config]
-    # Define static storage via django-storages[google]
-    GS_BUCKET_NAME = env("GS_BUCKET_NAME")
-    STATIC_URL = "/static/"
-    DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
-    STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
-    GS_DEFAULT_ACL = "publicRead"
+DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
+GS_BUCKET_NAME = "carz_static"
+GS_LOCATION = "static"
+STATIC_URL = f'https://storage.googleapis.com/'
+STATIC_ROOT = "static/"
+STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
+GS_DEFAULT_ACL = "publicRead"
+
+# Configure the storage backend
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

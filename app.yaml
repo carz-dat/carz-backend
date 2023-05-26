@@ -16,24 +16,12 @@
 
 # [START django_app]
 # [START gaestd_py_django_app_yaml]
-runtime: python39
+runtime: python311
+entrypoint: gunicorn -b :$PORT carz.wsgi
 
 env_variables:
   # This setting is used in settings.py to configure your ALLOWED_HOSTS
   # APPENGINE_URL: PROJECT_ID.uc.r.appspot.com
-  DEBUG: True
+  DEBUG: False
   GS_BUCKET_NAME: "carz_static"
-
-handlers:
-# This configures Google App Engine to serve the files in the app's static
-# directory.
-- url: /static
-  static_dir: static/
-
-# This handler routes all requests not caught above to your main app. It is
-# required when static routes are defined, but can be omitted (along with
-# the entire handlers section) when there are no static files defined.
-- url: /.*
-  script: auto
-# [END gaestd_py_django_app_yaml]
-# [END django_app]
+  DATABASES_URL: "postgres://carz:nsbuSQSZ7yuMkEMg1lmK3xfAfgVpBU8G@dpg-chg9qtrhp8u065opgidg-a.frankfurt-postgres.render.com/carz"
