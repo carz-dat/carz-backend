@@ -92,14 +92,11 @@ if DEBUG:
     }
 else:
     DATABASES = {
-        'default': {
-            'ENGINE': os.environ.get('DBENGINE', 'django.db.backends.postgresql'),
-            'NAME': os.environ.get('DBNAME', 'carz'),
-            'USER': os.environ.get('DBUSER', 'carz'),
-            'PASSWORD': os.environ.get('DBPASSWORD', ''),
-            'HOST': os.environ.get('DBHOST', 'postgres://carz:nsbuSQSZ7yuMkEMg1lmK3xfAfgVpBU8G@dpg-chg9qtrhp8u065opgidg-a.frankfurt-postgres.render.com/carz'),
-            'PORT': os.environ.get('DBPORT', '5432'),
-    }}
+        "default": dj_database_url.config(
+            default=env('DATABASE_URL'),
+        conn_max_age=600,
+        conn_health_checks=True,
+    )}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
