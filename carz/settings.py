@@ -11,13 +11,11 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-import io
 import os
 import dj_database_url
 import environ
 from google.cloud import secretmanager
 from .utils import access_secret_version
-from storages.backends.gcloud import GoogleCloudStorage
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,12 +29,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: don't run with debug turned on in production!
 env = environ.Env()
-DEBUG = env("DEBUG")
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
 # Sercret manager client and project id
-if not DEBUG:
+if DEBUG:
+    SECRET_KEY = 'test'
+else:
     try:
         client = secretmanager.SecretManagerServiceClient()
         project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")
@@ -45,10 +45,7 @@ if not DEBUG:
     except:
         raise Exception(
             "No local .env or GOOGLE_CLOUD_PROJECT detected. No secrets found.")
-else:
-    SECRET_KEY = 'test'
 # [END gaestd_py_django_secret_config]
-
 
 # Application definition
 
