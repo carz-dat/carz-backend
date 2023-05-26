@@ -23,5 +23,5 @@ env_variables:
   # This setting is used in settings.py to configure your ALLOWED_HOSTS
   # APPENGINE_URL: PROJECT_ID.uc.r.appspot.com
   DEBUG: False
-  GS_BUCKET_NAME: "carz_static"
+  GS_BUCKET_NAME: "carz-386708.appspot.com"
   DATABASES_URL: "postgres://carz:nsbuSQSZ7yuMkEMg1lmK3xfAfgVpBU8G@dpg-chg9qtrhp8u065opgidg-a.frankfurt-postgres.render.com/carz"
