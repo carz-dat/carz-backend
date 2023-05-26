@@ -28,8 +28,8 @@ jobs:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
       run: |
         pip install -r requirements.txt
-        python manage.py makemigrations --settings=carz.migration_settings
-        python manage.py migrate --settings=carz.migration_settings
+        python manage.py makemigrations --settings=investment.settings
+        python manage.py migrate --settings=investment.settings
     
     - name: Deploy to App Engine
       id: deploy
