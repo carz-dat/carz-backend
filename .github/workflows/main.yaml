@@ -22,16 +22,15 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    
+
     - name: Migrate
       env:
-        GOOGLE_CLOUD_PROJECT: ${{ secrets.GCP_PROJECT }}
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
       run: |
-        echo $GOOGLE_CLOUD_PROJECT
         pip install -r requirements.txt
-        python manage.py makemigrations
-        python manage.py migrate
-
+        python manage.py makemigrations --settings=carz.migration_settings
+        python manage.py migrate --settings=carz.migration_settings
+    
     - name: Deploy to App Engine
       id: deploy
       uses: google-github-actions/deploy-appengine@v0.2.0
