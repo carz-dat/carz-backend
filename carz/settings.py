@@ -11,7 +11,12 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import io
 import os
+import dj_database_url
+import environ
+from google.cloud import secretmanager
+from .utils import access_secret_version
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,9 +29,25 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure--u56kdo)te)h6mo^zamevis6k@a16t2k!b5r#ofaqntzon&ux&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+env = environ.Env(DEBUG=(bool, False))
+DEBUG = env("DEBUG")
 
 ALLOWED_HOSTS = ['*']
+
+# Sercret manager client and project id
+client = secretmanager.SecretManagerServiceClient()
+project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")
+
+if not DEBUG:
+    try:
+        # Pull secrets from Secret Manager
+        SECRET_KEY = access_secret_version('SECRET_KEY', client, project_id)
+    except:
+        raise Exception(
+            "No local .env or GOOGLE_CLOUD_PROJECT detected. No secrets found.")
+else:
+    SECRET_KEY = env("SECRET_KEY", "dopiqdj0ioqw8901u7890wd-./q")
+# [END gaestd_py_django_secret_config]
 
 
 # Application definition
@@ -45,6 +66,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -73,17 +95,22 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'carz.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
-
+else:
+    DATABASES = {
+        "default": dj_database_url.config(
+            default="postgres://carz:nsbuSQSZ7yuMkEMg1lmK3xfAfgVpBU8G@dpg-chg9qtrhp8u065opgidg-a.frankfurt-postgres.render.com/carz",
+        conn_max_age=600,
+        conn_health_checks=True,
+    )}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -120,6 +147,23 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+# Following settings only make sense on production and may break development environments.
+if DEBUG:  # Tell Django to copy statics to the `staticfiles` directory
+    # in your application directory on Render.
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    # Turn on WhiteNoise storage backend that takes care of compressing static files
+    # and creating unique names for each version so they can safely be cached forever.
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+else:
+    # Static files (CSS, JavaScript, Images)
+    # [START staticurl]
+    # [START gaeflex_py_django_static_config]
+    # Define static storage via django-storages[google]
+    GS_BUCKET_NAME = env("GS_BUCKET_NAME")
+    STATIC_URL = "/static/"
+    DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
+    STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
+    GS_DEFAULT_ACL = "publicRead"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
