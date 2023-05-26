@@ -24,7 +24,10 @@ jobs:
       uses: actions/checkout@v2
     
     - name: Migrate
+      env:
+        GOOGLE_CLOUD_PROJECT: ${{ secrets.GCP_PROJECT }}
       run: |
+        echo $GOOGLE_CLOUD_PROJECT
         pip install -r requirements.txt
         python manage.py makemigrations
         python manage.py migrate
