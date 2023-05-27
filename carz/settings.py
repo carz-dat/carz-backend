@@ -42,6 +42,7 @@ else:
         project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")
         # Pull secrets from Secret Manager
         SECRET_KEY = access_secret_version('SECRET_KEY', client, project_id)
+        DATABASE_URL = access_secret_version('DATABASE_URL', client, project_id)
     except:
         raise Exception(
             "No local .env or GOOGLE_CLOUD_PROJECT detected. No secrets found.")
@@ -105,7 +106,7 @@ if DEBUG:
 else:
     DATABASES = {
         "default": dj_database_url.config(
-            default=env('DATABASES_URL'),
+            default=DATABASE_URL,
         conn_max_age=600,
         conn_health_checks=True,
     )}
