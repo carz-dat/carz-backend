@@ -24,9 +24,12 @@ class CarAdmin(admin.ModelAdmin):
     ]
 
     def repair_cost(self, obj):
-        return f"{obj.car.aggregate(Sum('price'))['price__sum']} USD"
+        return f"{obj.car.aggregate(Sum('price'))['price__sum']} USD" or "0 USD"
 
     def total_expense(self, obj):
+        print(obj.car.aggregate(Sum('price'))['price__sum'])
+        if obj.car.aggregate(Sum('price'))['price__sum'] == None:
+            return f"{obj.shipment_fee + obj.auction_fee} USD"
         return f"{obj.car.aggregate(Sum('price'))['price__sum'] + obj.shipment_fee + obj.auction_fee} USD"
 
 

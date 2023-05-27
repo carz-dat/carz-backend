@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-import os
 import dj_database_url
 import environ
 
@@ -27,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: don't run with debug turned on in production!
 env = environ.Env()
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 CORS_ALLOW_ALL_ORIGINS = True
@@ -87,20 +86,13 @@ WSGI_APPLICATION = 'carz.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-if DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
-else:
-    DATABASES = {
-        "default": dj_database_url.config(
-            default=env('DATABASE_URL'),
-        conn_max_age=600,
-        conn_health_checks=True,
-    )}
+
+DATABASES = {
+    "default": dj_database_url.config(
+        default=env("DATABASE_URL"),
+    conn_max_age=600,
+    conn_health_checks=True,
+)}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -136,8 +128,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
+DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
+GS_BUCKET_NAME = "carz-386708.appspot.com"
+GS_LOCATION = "static"
 STATIC_URL = f'https://storage.googleapis.com/'
 STATIC_ROOT = "static/"
+STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
+GS_DEFAULT_ACL = "publicRead"
 
 # Configure the storage backend
 
