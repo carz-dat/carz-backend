@@ -30,6 +30,7 @@ env = environ.Env()
 DEBUG = False
 
 ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS=['*']
 
 # Sercret manager client and project id
 SECRET_KEY = 'test'
