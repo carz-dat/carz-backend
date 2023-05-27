@@ -33,7 +33,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 CORS_ALLOW_ALL_ORIGINS = True
-CSRF_TRUSTED_ORIGINS=['https://carz.julbasa.com/', 'https://www.carz.julbasa.com/']
+CSRF_TRUSTED_ORIGINS=['https://carz.julbasa.com', 'https://www.carz.julbasa.com']
 
 # Sercret manager client and project id
 if DEBUG:
